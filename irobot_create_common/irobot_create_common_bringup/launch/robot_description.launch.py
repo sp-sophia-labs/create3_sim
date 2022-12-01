@@ -14,11 +14,9 @@ ARGUMENTS = [
     DeclareLaunchArgument('gazebo', default_value='classic',
                           choices=['classic', 'ignition'],
                           description='Which gazebo simulator to use'),
-    DeclareLaunchArgument('visualize_rays', default_value='false',
+    DeclareLaunchArgument('visualize_rays', default_value='true',
                           choices=['true', 'false'],
                           description='Enable/disable ray visualization'),
-    DeclareLaunchArgument('namespace', default_value='',
-                          description='Create3 namespace')
 ]
 
 
@@ -27,14 +25,11 @@ def generate_launch_description():
     xacro_file = PathJoinSubstitution([pkg_create3_description, 'urdf', 'create3.urdf.xacro'])
     gazebo_simulator = LaunchConfiguration('gazebo')
     visualize_rays = LaunchConfiguration('visualize_rays')
-    namespace = LaunchConfiguration('namespace')
-    frame_prefix = [namespace, '/']
 
     robot_state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         name='robot_state_publisher',
-        namespace=LaunchConfiguration('namespace'),
         output='screen',
         parameters=[
             {'use_sim_time': True},
@@ -43,9 +38,7 @@ def generate_launch_description():
                   ['xacro', ' ', xacro_file, ' ',
                    'gazebo:=', gazebo_simulator, ' ',
                    'visualize_rays:=', visualize_rays, ' ',
-                   'namespace:=', namespace, ' '
                    ])},
-            {'frame_prefix': frame_prefix},
         ],
     )
 
@@ -53,7 +46,6 @@ def generate_launch_description():
         package='joint_state_publisher',
         executable='joint_state_publisher',
         name='joint_state_publisher',
-        namespace=LaunchConfiguration('namespace'),
         output='screen',
     )
 

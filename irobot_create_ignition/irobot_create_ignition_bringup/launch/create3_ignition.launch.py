@@ -31,6 +31,9 @@ ARGUMENTS = [
                           description='Spawn the standard dock model.'),
     DeclareLaunchArgument('namespace', default_value='',
                           description='robot namespace'),
+    DeclareLaunchArgument('use_namespace', default_value='false',
+                          choices=['true', 'false'],
+                          description='Whether to apply namespace'),
 ]
 for pose_element in ['x', 'y', 'z', 'yaw']:
     ARGUMENTS.append(DeclareLaunchArgument(pose_element, default_value='0.0',
@@ -67,13 +70,6 @@ def generate_launch_description():
     ign_gazebo_launch = PathJoinSubstitution(
         [pkg_ros_ign_gazebo, 'launch', 'ign_gazebo.launch.py'])
 
-    # Launch configurations
-    x, y, z = LaunchConfiguration('x'), LaunchConfiguration('y'), LaunchConfiguration('z')
-    yaw = LaunchConfiguration('yaw')
-    robot_name = LaunchConfiguration('robot_name')
-    world = LaunchConfiguration('world')
-    namespace = LaunchConfiguration('namespace')
-
     # Ignition gazebo
     ignition_gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([ign_gazebo_launch]),
@@ -87,20 +83,22 @@ def generate_launch_description():
         ]
     )
 
-    # Create3
+    # Spawn a Create3 robot 
     spawn_robot = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(pkg_irobot_create_ignition_bringup, 'launch',
                                                    'create3_spawn.launch.py')),
-        launch_arguments={'x': x,
-                          'y': y,
-                          'z': z,
-                          'yaw': yaw,
-                          'robot_name': robot_name,
-                          'robot_description': '/robot_description',
-                          'world': world,
+        launch_arguments={'x': LaunchConfiguration('x'),
+                          'y': LaunchConfiguration('y'),
+                          'z': LaunchConfiguration('z'),
+                          'yaw': LaunchConfiguration('yaw'),
+                          'bridge': LaunchConfiguration('bridge'),
+                          'use_sim_time': LaunchConfiguration('use_sim_time'),
+                          'world': LaunchConfiguration('world'),
+                          'robot_name': LaunchConfiguration('robot_name'),
                           'use_rviz': LaunchConfiguration('use_rviz'),
-                          'namespace': namespace,
                           'spawn_dock': LaunchConfiguration('spawn_dock'),
+                          'namespace': LaunchConfiguration('namespace'),
+                          'use_namespace': LaunchConfiguration('use_namespace'),
                           }.items()
     )
 
